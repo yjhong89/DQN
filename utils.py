@@ -35,8 +35,28 @@ def write_log(steps, total_rwd, total_q, total_loss, num_episode, epsilon, start
 		eval_log.flush()
 
 
-
-
+# Define convolutional layer
+# 'inp' : [batch, in_height, in_widht, in_channels]
+# truncated_normal : bound with 2*stddev
+def conv2d(self, inp, output_dim, filter_height, filter_width, stride,stddev=0.02, name=None):
+	print('Convolution Calculation..')
+	with tf.variable_scope(name or 'conv2d'):
+		weight = tf.get_variable('weight', [filter_height, filter_width, inp.get_shape()[-1], output_dim], initializer=tf.truncated_normal_initializer(stddev=stddev))
+		# padding=SAME : ceil(float(in_height))/float(stride)
+		# padding=VALID: cell(float(in_height-filter_height)+1)/float(stride)
+		conv = tf.nn.conv2d(inp, weight, strides=[1,stride,stride,1], padding='VALID')
+		bias = tf.get_variable('bias', [output_dim], initializer=tf.constant_initializer(0))
+		conv_wb = tf.add(conv,bias)
+		return conv_wb, conv_wb.get_shape().as_list()
+ 
+def linear(self, inp, output_size, name=None, stddev=0.02):
+	print('Fully Connected Layer Calculation..')
+	inp_shape = inp.get_shape().as_list()
+	with tf.variable_scope(name or 'linear'):
+		weight = tf.get_variable('weight', [inp_shape[-1], output_size], initializer=tf.truncated_normal_initializer(stddev=stddev))
+		bias = tf.get_variable('bias', [output_size], initializer=tf.constant_initializer(0))
+		weighted_sum = tf.matmul(inp, weight) + bias
+    	return weighted_sum
 
 
 
