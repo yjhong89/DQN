@@ -56,7 +56,7 @@ class dqn:
 
 			self.diff_square = tf.mul(tf.constant(0.5), tf.pow(tf.sub(self.q_target - self.q_pred), 2))
 
-    		self.loss = tf.reduce_mean(self.diff_square)
+			self.loss = tf.reduce_mean(self.diff_square)
 
 			# Check training step
 			self.global_step = tf.Variable(0, name='global_step', trainable=False)
