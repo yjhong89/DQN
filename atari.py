@@ -17,16 +17,12 @@ class atari:
 		self.args.num_actions = len(self.engine.legal_actions)
  		# Build net
 		self.build_model()
-		if self.args.only_evaluation:
-			self.training = False
-		else:
-			self.training = True
 
  	def build_model(self):
  	 	print('Building QNet and targetnet..')
  	 	# Create 2 dqn to calculate gradient with fixed parameters
- 	 	self.qnet = dqn(self.args, 'qnet')
- 	 	self.targetnet = dqn(self.args, 'targetnet')
+ 	 	self.qnet = dqn(self.args, name='qnet')
+ 	 	self.targetnet = dqn(self.args, name='targetnet')
  	 	self.sess.run(tf.global_variables_initializer())
  	 	# Choose which variable to save and restore, save parts of parameters, not all parameters, pass dictionary
  	 	# Before that, need to initialize
@@ -121,7 +117,6 @@ class atari:
   		print('Reset before train start')
 		self.reset_game()
   		self.reset_statistics()
-  		print('Training step %s : ' % str(self.sess.run(self.qnet.blobal_step)))
 
   		# Increment global step as RMSoptimizer run
 		utils.initialize_log()
@@ -131,6 +126,7 @@ class atari:
   		print('Start training')
 		# Collecting experience before training, composing batch, just observing
 		print('Collecting replay memory for %s steps' % (str(self.args.train_start)))
+		self.eps = self.args.initial_eps
  
 		# total_step + train start : observing game and store state transitions
 		while self.step < self.args.num_iterations:
@@ -140,7 +136,8 @@ class atari:
 				self.database.insert(self.state_gray_old[26:110,:], self.action_index, self.reward_scaled, self.terminal)
 			# Training
 			if self.database.get_size > self.args.train_start:
-				print('Training network')
+				if self.database.get_size == self.args.train_start:
+					print('Training network')
 				print('Current training_step : %d' % self.step)
 				self.step += 1
 				# Get batches
@@ -158,10 +155,10 @@ class atari:
 				self.total_loss += loss_
 
 				# Decaying epsilon
-				self.eps = max(self.args.eps_min, 1.0 - float(self.train_count)/float(self.args.eps_step))
+				self.eps = max(self.args.eps_min, self.args.initial_eps - float(self.step)/float(self.args.eps_step))
 
 				# Copy qnet to target net
-				if selef.step % self.args.copy_interval == 0:
+				if self.step % self.args.copy_interval == 0:
 					self.copy_network()				
  				# Save
 				if self.step % self.args.save_interval == 0:
@@ -169,14 +166,6 @@ class atari:
 				# Log
 				if self.step % self.args.log_interval == 0:
 					utils.write_log(self.step, self.total_reward, self.total_Q, self.eps, mode='train')
-
-			# End evaluation
-			if not self.training and self.steps_eval >= self.args.steps_per_eval:
-				self.write_log_eval()
-				print('Reset for evaluation ends')
-				self.reset_game()
-				self.reset_statistics('eval')
-				self.training = True
 
 			# When game is finished(One episode is over)
 			if self.terminal:
@@ -313,7 +302,7 @@ class atari:
 		checkpoint_dir = os.path.join(self.args.checkpoint_dir, self.model_dir)
 		if not os.path.exists(chekcpoint_dir):
 			os.mkdir(checkpoint_dir)
-		self.saver.save(self.sess, os.path.join(chekcpoint_dir, model_name, global_step=total_step)
+		self.saver.save(self.sess, os.path.join(chekcpoint_dir, model_name, global_step=total_step))
 		print('Model saved at %s in %d steps' % (checkpoint_dir, total_step))
 
  	def load(self):

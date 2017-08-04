@@ -40,7 +40,7 @@ class dqn:
  
 			# Fully Connected layer
 			# 256 hidden units
-			self.out2_flat = tf.reshape(self.out2, [self.args.batch_size, -1], name='input_flat')
+			self.out2_flat = tf.reshape(self.out2, [-1, out2_shape[-1]*out2_shape[-2]*out2_shape[-3]], name='input_flat')
 			self.out3 = utils.linear(self.out2_flat, 256, name='fc3')
 			self.activation3 = tf.nn.relu(self.out3, name='activation3')
   
@@ -54,7 +54,7 @@ class dqn:
 			# [batch,]
 			self.q_pred= tf.reduce_sum(tf.mul(self.y, self.actions), reduction_indices=1)
 
-			self.diff_square = tf.mul(tf.constant(0.5), tf.pow(tf.sub(self.q_target - self.q_pred), 2))
+			self.diff_square = tf.mul(tf.constant(0.5), tf.pow(self.q_target - self.q_pred, 2))
 
 			self.loss = tf.reduce_mean(self.diff_square)
 

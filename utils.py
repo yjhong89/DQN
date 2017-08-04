@@ -1,4 +1,5 @@
 import numpy as np
+import tensorflow as tf
 import os, time
 
 LOG_DIR = './logs'
@@ -9,6 +10,7 @@ def initialize_log():
 	try:
 		train_log = open(os.path.join(LOG_DIR, TRAIN), 'a')
 	except:
+		print('Initialize log..')
 		train_log = open(os.path.join(LOG_DIR, TRAIN), 'w')
 		train_log.write('Step\t'+',avg_reward\t'+',avg_q\t'+',epsilon\t'+',time\n')
 	try:
@@ -38,7 +40,7 @@ def write_log(steps, total_rwd, total_q, total_loss, num_episode, epsilon, start
 # Define convolutional layer
 # 'inp' : [batch, in_height, in_widht, in_channels]
 # truncated_normal : bound with 2*stddev
-def conv2d(self, inp, output_dim, filter_height, filter_width, stride,stddev=0.02, name=None):
+def conv2d(inp, output_dim, filter_height, filter_width, stride,stddev=0.02, name=None):
 	print('Convolution Calculation..')
 	with tf.variable_scope(name or 'conv2d'):
 		weight = tf.get_variable('weight', [filter_height, filter_width, inp.get_shape()[-1], output_dim], initializer=tf.truncated_normal_initializer(stddev=stddev))
@@ -49,7 +51,7 @@ def conv2d(self, inp, output_dim, filter_height, filter_width, stride,stddev=0.0
 		conv_wb = tf.add(conv,bias)
 		return conv_wb, conv_wb.get_shape().as_list()
  
-def linear(self, inp, output_size, name=None, stddev=0.02):
+def linear(inp, output_size, name=None, stddev=0.02):
 	print('Fully Connected Layer Calculation..')
 	inp_shape = inp.get_shape().as_list()
 	with tf.variable_scope(name or 'linear'):
