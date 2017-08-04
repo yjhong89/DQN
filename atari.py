@@ -136,8 +136,8 @@ class atari:
 				self.database.insert(self.state_gray_old[26:110,:], self.action_index, self.reward_scaled, self.terminal)
 			# Training
 			if self.database.get_size > self.args.train_start:
-				if self.database.get_size == self.args.train_start:
-					print('Training network')
+				if self.database.get_size == self.args.train_start+1:
+					print('\tStart Training network')
 				print('Current training_step : %d' % self.step)
 				self.step += 1
 				# Get batches
@@ -290,7 +290,7 @@ class atari:
 	def get_onehot(self, action):
 		one_hot = np.zeros([self.args.batch_size, self.args.num_actions])
 		for i in xrange(self.args.batch_size):
-			one_hot[i, action[i]] = 1
+			one_hot[i, int(action[i])] = 1
 		return one_hot
 
 	@property
