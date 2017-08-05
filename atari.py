@@ -71,18 +71,7 @@ class atari:
  	 	# Reorder in alphabetical order, can not sort
  	#	 self.qnet.tr_vrbs.sort()
  	#	 self.targetnet.tr_vrbs.sort()
-		''' Copy from target network parameters to online network
-			17 parameters, qnet parameter/step/targetnet parameters
-		'''
- 	 	self.sess.run([self.saver_dict['tw1'].assign(self.saver_dict['qw1']), 
- 	 	              self.saver_dict['tw2'].assign(self.saver_dict['qw2']),
- 	 	              self.saver_dict['tw3'].assign(self.saver_dict['qw3']),
- 	 	              self.saver_dict['tw4'].assign(self.saver_dict['qw4'])])
- 	 	self.sess.run([self.saver_dict['tb1'].assign(self.saver_dict['qb1']),
- 	 	              self.saver_dict['tb2'].assign(self.saver_dict['qb2']),
- 	 	              self.saver_dict['tb3'].assign(self.saver_dict['qb3']),
- 	 	              self.saver_dict['tb4'].assign(self.saver_dict['qb4'])])
- 	 	print('Copy targetnet from qnet!')
+		self.copy_network()
 
  	 	if self.load():
  	 	 	print('Loaded checkpoint..')
@@ -243,6 +232,9 @@ class atari:
 
 
 	def copy_network(self):
+		''' Copy from target network parameters to online network
+			17 parameters, qnet parameter/step/targetnet parameters
+		'''
 		print('Copying qnet to targetnet')
 		self.sess.run([self.saver_dict['tw1'].assign(self.saver_dict['qw1']), 
 	                  self.saver_dict['tw2'].assign(self.saver_dict['qw2']),
