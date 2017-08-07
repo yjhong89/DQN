@@ -127,8 +127,8 @@ class atari:
 			if self.database.get_size > self.args.train_start:
 				if self.database.get_size == self.args.train_start+1:
 					print('\tStart Training network')
-				print('Current training_step : %d' % self.step)
 				self.step += 1
+				print('Current training_step : %d' % self.step)
 				# Get batches
 				batch_state, batch_next_state, batch_actions, batch_terminals, batch_rewards = self.database.get_batches()
 				batch_actions = self.get_onehot(batch_actions)
@@ -143,9 +143,6 @@ class atari:
 				loss_, _ = self.sess.run([self.qnet.loss, self.qnet.train_op], feed_dict = feed)
 				self.total_loss += loss_
 
-				# Decaying epsilon
-				self.eps = max(self.args.eps_min, self.args.initial_eps - float(self.step)/float(self.args.eps_step))
-
 				# Copy qnet to target net
 				if self.step % self.args.copy_interval == 0:
 					self.copy_network()				
@@ -155,6 +152,9 @@ class atari:
 				# Log
 				if self.step % self.args.log_interval == 0:
 					utils.write_log(self.step, self.total_reward, self.total_Q, self.eps, mode='train')
+
+				# Decaying epsilon
+				self.eps = max(self.args.eps_min, self.args.initial_eps - float(self.step)/float(self.args.eps_step))
 
 			# When game is finished(One episode is over)
 			if self.terminal:
