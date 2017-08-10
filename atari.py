@@ -102,10 +102,11 @@ class atari:
 
  	def train(self):
   		self.step = 0
+		self.num_epi = 0
   		# Reset game
   		print('Reset before train start')
 		self.reset_game()
-  		self.reset_statistics()
+  		self.initialize_statistics()
 
   		# Increment global step as RMSoptimizer run
 		utils.initialize_log()
@@ -146,13 +147,9 @@ class atari:
 				# Copy qnet to target net
 				if self.step % self.args.copy_interval == 0:
 					self.copy_network()				
- 				# Save
+				# Save
 				if self.step % self.args.save_interval == 0:
 					self.save(self.step)
-				# Log
-				if self.step % self.args.log_interval == 0:
-					utils.write_log(self.step, self.total_reward, self.total_Q, self.eps, mode='train')
-
 				# Decaying epsilon
 				self.eps = max(self.args.eps_min, self.args.initial_eps - float(self.step)/float(self.args.eps_step))
 
@@ -160,9 +157,12 @@ class atari:
 			if self.terminal:
 				print('Reset for episode ends')
 				self.reset_game()
+				# Write log per episode
 				self.num_epi += 1
-				self.total_reward += self.epi_reward
-				self.epi_reward = 0
+				if self.database.get_size > self.args.train_start:
+					utils.write_log(self.step, self.epi_reward, self.total_Q, self.num_epi, self.eps, self.start_time, mode='train', total_loss=self.total_loss)
+					# Initialize log variables
+					self.initialize_statistics()
 
 			# Get epsilon greedy action from state
 			self.action_index, self.action, self.maxQ = self.select_action(self.state_proc)
@@ -185,29 +185,32 @@ class atari:
 			self.state_gray = cv2.cvtColor(self.state_resized, cv2.COLOR_BGR2GRAY)
 			self.state_proc[:,:,3] = self.state_gray[26:110,:]/self.args.img_scale
 
+
+
 	def evaluation(self):
 		self.eval_step = 0
+		self.num_epi = 0
 		if self.load():
 			print('Loaded checkpoint')
 		else:
 			raise Exception('No checkpoint')
 
 		self.reset_game()
-		self.reset_statistics()
+		self.initialize_statistics()
 		utils.initialize_log()
 
 		while self.eval_step < self.args.num_iterations:
 			self.eval_step += 1
-			if self.eval_step % self.log_interval == 0:
-				utils.write_log(self.eval_step, self.total_reward, self.total_Q, self.args.eps_min, mode='eval')
 
 			# When game is finished(One episode is over)
 			if self.terminal:
 				print('Reset since episode ends')
 				self.reset_game()
 				self.num_epi += 1
-				self.total_reward += self.epi_reward
-				self.epi_reward = 0
+				utils.write_log(self.eval_step, self.total_reward, self.total_Q, self.num_epi, self.args.eps_min, mode='eval')
+				# Initialize log variables
+				self.initialize_statistics()				
+
 
 			# Get epsilon greedy action from state
 			self.action_index, self.action, self.maxQ = self.select_action(self.state_proc)
@@ -246,9 +249,8 @@ class atari:
 	                  self.saver_dict['tb4'].assign(self.saver_dict['qb4'])])
 		print('Copy targetnet from qnet!')
  
-	def reset_statistics(self):
+	def initialize_statistics(self):
    		self.epi_reward = 0
-		self.num_epi = 0
 		self.total_reward = 0
 		self.total_Q = 0
 		self.total_loss = 0
@@ -292,9 +294,9 @@ class atari:
 	def save(self, total_step):
 		model_name = 'DQN'
 		checkpoint_dir = os.path.join(self.args.checkpoint_dir, self.model_dir)
-		if not os.path.exists(chekcpoint_dir):
+		if not os.path.exists(checkpoint_dir):
 			os.mkdir(checkpoint_dir)
-		self.saver.save(self.sess, os.path.join(chekcpoint_dir, model_name, global_step=total_step))
+		self.saver.save(self.sess, os.path.join(checkpoint_dir, model_name), global_step=total_step)
 		print('Model saved at %s in %d steps' % (checkpoint_dir, total_step))
 
  	def load(self):
