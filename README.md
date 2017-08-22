@@ -1,6 +1,7 @@
 # DQN
-Deep Q learning in Atari game
+Deep Q learning
 
-Implementation DQN in tensorflow
-
-Need ALE(Arcade Learninig Environment) library from https://github.com/mgbellemare/Arcade-Learning-Environment
+Reference :
+1) DQN(https://www.cs.toronto.edu/~vmnih/docs/dqn.pdf)
+2) Arcade Learning Environment(https://github.com/mgbellemare/Arcade-Learning-Environment)
+3) https://github.com/gliese581gg/DQN_tensorflow
