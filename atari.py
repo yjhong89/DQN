@@ -82,7 +82,8 @@ class atari:
 
 
  	def reset_game(self):
-  		print('Reset game at : %s ' % str(self.step))
+		if self.step != 0:
+	  		print('Reset game at : %s ' % str(self.step))
 		# Initialize all thing
   		self.state_proc = np.zeros([84,84,4])
   		self.action = -1
@@ -155,10 +156,10 @@ class atari:
 
 			# When game is finished(One episode is over)
 			if self.terminal:
-				print('Reset for episode ends')
+				self.num_epi += 1
+				print('%d episode ends' % self.num_epi)
 				self.reset_game()
 				# Write log per episode
-				self.num_epi += 1
 				if self.database.get_size > self.args.train_start:
 					utils.write_log(self.step, self.epi_reward, self.total_Q, self.num_epi, self.eps, self.start_time, mode='train', total_loss=self.total_loss)
 					# Initialize log variables
@@ -259,7 +260,7 @@ class atari:
 	def select_action(self, state):
 		# Greedy action
 		if np.random.rand() > self.eps:
-			print('Greedy action')
+		#	print('Greedy action')
 			# batch size for 'x' is 1 since we choose action for specific state
 			q_prediction = self.sess.run(self.qnet.y, feed_dict={self.qnet.x : np.reshape(state, [1,84,84,4])})[0]
    			# Consider case when there are several same q max value
@@ -267,7 +268,7 @@ class atari:
 			max_action_indices = np.argwhere(q_prediction == np.max(q_prediction))
 			# If max_action_indices has more than 1 element, Choose 1 of them
 			if len(max_action_indices) > 1:
-				action_idx = max_action_indices[np.random.randint(0, len(max_action_indexs))][0]
+				action_idx = max_action_indices[np.random.randint(0, len(max_action_indices))][0]
 				return action_idx, self.engine.legal_actions[action_idx], np.max(q_prediction)
 			else:
 				action_idx = max_action_indices[0][0]
@@ -275,7 +276,7 @@ class atari:
 		# episilon greedy action
 		else:
 			action_idx = np.random.randint(0,len(self.engine.legal_actions))
-			print('Episilon greedy action : %d ' %self.engine.legal_actions[action_idx])
+		#	print('Episilon greedy action : %d ' %self.engine.legal_actions[action_idx])
 			q_prediction = self.sess.run(self.qnet.y, feed_dict={self.qnet.x : np.reshape(state, [1,84,84,4])})[0]
 			return action_idx, self.engine.legal_actions[action_idx], q_prediction[action_idx]
 

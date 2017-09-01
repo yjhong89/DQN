@@ -59,10 +59,10 @@ class experience_replay:
   		self.actions[self.pointer] = action
   		self.rewards[self.pointer] = reward
   		self.terminals[self.pointer] = terminal
-  		print('Insert to replay memory at %d' % self.pointer)
   		# Update pointer
   		self.pointer += 1
   		if self.pointer >= self.size:
+			print('Buffer is full')
    			self.flag = True
    			self.pointer = 0
 

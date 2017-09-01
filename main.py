@@ -18,7 +18,7 @@ def main():
  	parser.add_argument('--discount_factor', type=float, default=0.95)
  	parser.add_argument('--learning_rate', type=float, default=2e-4)
  	parser.add_argument('--img_scale', type=float, default=255.0)
- 	parser.add_argument('--train_start', type=int, default=1000)
+ 	parser.add_argument('--train_start', type=int, default=5000)
  	parser.add_argument('--checkpoint_dir', type=str, default='./checkpoint')
  	parser.add_argument('--log_dir', type=str, default='./logs')
  	parser.add_argument('--train', type=str2bool, default='true')
