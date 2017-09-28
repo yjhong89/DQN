@@ -50,11 +50,11 @@ class dqn:
 
 			# Define q value and loss function
 			# Also consider terminal state(no next state, so no next q value)
-			self.q_target = self.rewards + tf.mul(1-self.terminals, tf.mul(self.args.discount_factor, self.q))
+			self.q_target = self.rewards + tf.multiply(1-self.terminals, tf.multiply(self.args.discount_factor, self.q))
 			# [batch,]
-			self.q_pred= tf.reduce_sum(tf.mul(self.y, self.actions), reduction_indices=1)
+			self.q_pred= tf.reduce_sum(tf.multiply(self.y, self.actions), reduction_indices=1)
 
-			self.diff_square = tf.mul(tf.constant(0.5), tf.pow(self.q_target - self.q_pred, 2))
+			self.diff_square = tf.multiply(tf.constant(0.5), tf.pow(self.q_target - self.q_pred, 2))
 
 			self.loss = tf.reduce_mean(self.diff_square)
 
