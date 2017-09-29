@@ -189,7 +189,7 @@ class atari:
 
 
 	def evaluation(self):
-		self.eval_step = 0
+		self.step = 0
 		self.num_epi = 0
 		if self.load():
 			print('Loaded checkpoint')
@@ -199,16 +199,19 @@ class atari:
 		self.reset_game()
 		self.initialize_statistics()
 		utils.initialize_log()
+		# Greedy action with 0.1
+		self.eps = 0
 
-		while self.eval_step < self.args.num_iterations:
-			self.eval_step += 1
+		while self.step < self.args.num_eval_iterations:
+			self.step += 1
+			start_time = time.time()
 
 			# When game is finished(One episode is over)
 			if self.terminal:
 				print('Reset since episode ends')
 				self.reset_game()
 				self.num_epi += 1
-				utils.write_log(self.eval_step, self.total_reward, self.total_Q, self.num_epi, self.args.eps_min, mode='eval')
+				utils.write_log(self.step, self.epi_reward, self.total_Q, self.num_epi, self.eps, start_time, mode='eval')
 				# Initialize log variables
 				self.initialize_statistics()				
 

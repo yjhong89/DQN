@@ -38,7 +38,7 @@ def write_log(steps, total_rwd, total_q, num_episode, epsilon, start_time, mode=
 	elif mode == 'eval':
 		print('At Evaluation step %d, %d episodes => total.Q : %3.4f, total.rwd : %3.4f' % \
 		(steps, num_episode, total_q, total_rwd))
-		eval_logs.write(str(steps)+'\t,' + str(total_rwd)+'\t,' + str(total_q)+'\t,' \
+		eval_log.write(str(steps)+'\t,' + str(total_rwd)+'\t,' + str(total_q)+'\t,' \
 		+ str(epsilon) + '\t,' + str(time.time() - start_time) + '\n')
 		eval_log.flush()
 

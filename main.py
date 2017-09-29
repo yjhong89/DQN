@@ -7,6 +7,7 @@ def main():
  	parser = argparse.ArgumentParser()
  	parser.add_argument('--visualize', type=str2bool, default='false')
  	parser.add_argument('--num_iterations', type=int, default=1e8)
+	parser.add_argument('--num_eval_iterations', type=int, default=10000)
  	parser.add_argument('--save_interval', type=int, default=50000)
  	parser.add_argument('--copy_interval', type=int, default=10000)
  	parser.add_argument('--db_size', type=int, default=1000000)
@@ -21,7 +22,7 @@ def main():
  	parser.add_argument('--train_start', type=int, default=5000)
  	parser.add_argument('--checkpoint_dir', type=str, default='./checkpoint')
  	parser.add_argument('--log_dir', type=str, default='./logs')
- 	parser.add_argument('--train', type=str2bool, default='true')
+ 	parser.add_argument('--train', type=str2bool, default='n')
 
 	args = parser.parse_args()
 	if not os.path.exists(args.checkpoint_dir):
@@ -39,7 +40,7 @@ def main():
 		if args.train:
 			deep_atari.train()
 		else:
-			deep_atari.eval()
+			deep_atari.evaluation()
 
 def str2bool(v):
 	if v.lower() in ('yes', 'y', '1', 'true', 't'):
